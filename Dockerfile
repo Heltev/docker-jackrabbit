@@ -31,7 +31,7 @@ EXPOSE 8080
 # Jackrabbit
 # ==========
 
-ARG JACKRABBIT_VERSION=2.20.0
+ARG JACKRABBIT_VERSION=2.21.0
 
 # Install Jackrabbit
 RUN wget -q https://downloads.apache.org/jackrabbit/${JACKRABBIT_VERSION}/jackrabbit-webapp-${JACKRABBIT_VERSION}.war -O /tmp/jackrabbit.war \
@@ -69,7 +69,9 @@ ENV GLUU_MAX_RAM_PERCENTAGE=75.0
 
 RUN mkdir -p /deploy
 COPY static/jackrabbit /opt/jackrabbit/
-COPY static/jetty/*.xml ${JETTY_BASE}/jackrabbit/webapps/jackrabbit/WEB-INF/
+COPY static/jetty/web.xml ${JETTY_BASE}/jackrabbit/webapps/jackrabbit/WEB-INF/
+COPY static/jetty/protectedHandlersConfig.xml ${JETTY_BASE}/jackrabbit/webapps/jackrabbit/WEB-INF/
+COPY static/jetty/jackrabbit.xml ${JETTY_BASE}/jackrabbit/webapps/
 COPY scripts /app/scripts
 RUN chmod +x /app/scripts/entrypoint.sh
 
