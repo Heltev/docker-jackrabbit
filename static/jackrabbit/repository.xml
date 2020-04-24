@@ -65,14 +65,15 @@
         </AccessManager>
 
         <LoginModule class="org.apache.jackrabbit.core.security.authentication.DefaultLoginModule">
-           <!-- 
+           <!--
               anonymous user name ('anonymous' is the default value)
             -->
-           <param name="anonymousId" value="anonymous"/>
+           <!-- <param name="anonymousId" value="anonymous"/> -->
            <!--
               administrator user id (default value if param is missing is 'admin')
             -->
            <param name="adminId" value="admin"/>
+           <param name="password" value="{base64}%(b64_password)s" />
         </LoginModule>
     </Security>
 

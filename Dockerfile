@@ -47,6 +47,14 @@ RUN wget -q https://downloads.apache.org/jackrabbit/${JACKRABBIT_VERSION}/jackra
 RUN wget -q https://github.com/krallin/tini/releases/download/v0.18.0/tini-static -O /usr/bin/tini \
     && chmod +x /usr/bin/tini
 
+# ======
+# Python
+# ======
+
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install -U pip \
+    && pip install --no-cache-dir -r /tmp/requirements.txt
+
 # =======
 # Cleanup
 # =======
