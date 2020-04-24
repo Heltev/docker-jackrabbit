@@ -51,9 +51,9 @@ RUN wget -q https://github.com/krallin/tini/releases/download/v0.18.0/tini-stati
 # Python
 # ======
 
-COPY requirements.txt /tmp/requirements.txt
-RUN pip install -U pip \
-    && pip install --no-cache-dir -r /tmp/requirements.txt
+# COPY requirements.txt /tmp/requirements.txt
+# RUN pip install -U pip \
+#     && pip install --no-cache-dir -r /tmp/requirements.txt
 
 # =======
 # Cleanup

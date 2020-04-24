@@ -73,7 +73,7 @@
               administrator user id (default value if param is missing is 'admin')
             -->
            <param name="adminId" value="admin"/>
-           <param name="password" value="{base64}%(b64_password)s" />
+           <!-- <param name="password" value="{base64}%(b64_password)s" /> -->
         </LoginModule>
     </Security>
 
