@@ -1,10 +1,10 @@
 #!/bin/sh
 set -e
 
-# if [ ! -f /deploy/touched ]; then
-#     python /app/scripts/entrypoint.py
-#     touch /deploy/touched
-# fi
+if [ ! -f /deploy/touched ]; then
+    python /app/scripts/entrypoint.py
+    touch /deploy/touched
+fi
 
 cd /opt/gluu/jetty/jackrabbit
 exec java \
