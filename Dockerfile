@@ -67,6 +67,14 @@ COPY LICENSE /licenses/
 
 ENV GLUU_MAX_RAM_PERCENTAGE=75.0
 
+LABEL name="Jackrabbit" \
+    maintainer="Gluu Inc. <support@gluu.org>" \
+    vendor="Gluu Federation" \
+    version="4.1.1" \
+    release="01" \
+    summary="Jackrabbit" \
+    description="A fully conforming implementation of the Content Repository for Java Technology API (JCR)"
+
 RUN mkdir -p /deploy
 COPY static/jackrabbit /opt/jackrabbit/
 COPY static/jetty/web.xml ${JETTY_BASE}/jackrabbit/webapps/jackrabbit/WEB-INF/
