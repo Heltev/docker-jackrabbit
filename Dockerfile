@@ -5,8 +5,8 @@ FROM openjdk:8-jre-alpine3.9
 # ===============
 
 RUN apk update \
-    && apk add --no-cache python2 \
-    && apk add --no-cache --virtual build-deps wget
+    && apk add --no-cache py3-pip libxml2-dev libxslt-dev \
+    && apk add --no-cache --virtual build-deps wget build-base python3-dev
 
 # =====
 # Jetty
@@ -47,6 +47,13 @@ RUN wget -q https://downloads.apache.org/jackrabbit/${JACKRABBIT_VERSION}/jackra
 RUN wget -q https://github.com/krallin/tini/releases/download/v0.18.0/tini-static -O /usr/bin/tini \
     && chmod +x /usr/bin/tini
 
+# ======
+# Python
+# ======
+
+RUN pip3 install --no-cache-dir -U pip \
+    && pip3 install --no-cache-dir webdavclient3
+
 # =======
 # Cleanup
 # =======
@@ -75,7 +82,7 @@ LABEL name="Jackrabbit" \
     summary="Jackrabbit" \
     description="A fully conforming implementation of the Content Repository for Java Technology API (JCR)"
 
-RUN mkdir -p /deploy
+RUN mkdir -p /deploy /opt/webdav
 COPY static/jackrabbit /opt/jackrabbit/
 COPY static/jetty/web.xml ${JETTY_BASE}/jackrabbit/webapps/jackrabbit/WEB-INF/
 COPY static/jetty/protectedHandlersConfig.xml ${JETTY_BASE}/jackrabbit/webapps/jackrabbit/WEB-INF/
@@ -83,5 +90,5 @@ COPY static/jetty/jackrabbit.xml ${JETTY_BASE}/jackrabbit/webapps/
 COPY scripts /app/scripts
 RUN chmod +x /app/scripts/entrypoint.sh
 
-ENTRYPOINT ["tini", "-g", "--"]
+ENTRYPOINT ["tini", "-e", "143", "-g", "--"]
 CMD ["sh", "/app/scripts/entrypoint.sh"]
