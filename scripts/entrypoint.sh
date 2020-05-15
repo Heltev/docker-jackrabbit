@@ -6,7 +6,7 @@ if [ ! -f /deploy/touched ]; then
     touch /deploy/touched
 fi
 
-python3 /app/scripts/jca_sync.py &
+python /app/scripts/jca_sync.py &
 
 cd /opt/gluu/jetty/jackrabbit
 exec java \

@@ -1,12 +1,14 @@
-FROM openjdk:8-jre-alpine3.9
+FROM adoptopenjdk/openjdk11:alpine-jre
 
 # ===============
 # Alpine packages
 # ===============
 
 RUN apk update \
-    && apk add --no-cache py3-pip libxml2-dev libxslt-dev \
-    && apk add --no-cache --virtual build-deps wget build-base python3-dev
+    && apk add --no-cache py3-pip tini \
+    && apk add --no-cache --virtual build-deps wget \
+    && ln -sf /usr/bin/python3 /usr/bin/python \
+    && ln -sf /usr/bin/pip3 /usr/bin/pip
 
 # =====
 # Jetty
@@ -31,7 +33,7 @@ EXPOSE 8080
 # Jackrabbit
 # ==========
 
-ARG JACKRABBIT_VERSION=2.21.0
+ARG JACKRABBIT_VERSION=2.21.1
 
 # Install Jackrabbit
 RUN wget -q https://downloads.apache.org/jackrabbit/${JACKRABBIT_VERSION}/jackrabbit-webapp-${JACKRABBIT_VERSION}.war -O /tmp/jackrabbit.war \
@@ -40,19 +42,23 @@ RUN wget -q https://downloads.apache.org/jackrabbit/${JACKRABBIT_VERSION}/jackra
     && java -jar ${JETTY_HOME}/start.jar jetty.home=${JETTY_HOME} jetty.base=${JETTY_BASE}/jackrabbit --add-to-start=server,deploy,annotations,resources,http,http-forwarded,threadpool,jsp,websocket \
     && rm -f /tmp/jackrabbit.war
 
-# ====
-# Tini
-# ====
+# ======
+# rclone
+# ======
 
-RUN wget -q https://github.com/krallin/tini/releases/download/v0.18.0/tini-static -O /usr/bin/tini \
-    && chmod +x /usr/bin/tini
+ARG RCLONE_VERSION=v1.51.0
+RUN wget -q https://github.com/rclone/rclone/releases/download/${RCLONE_VERSION}/rclone-${RCLONE_VERSION}-linux-amd64.zip -O /tmp/rclone.zip \
+    && unzip -qq /tmp/rclone.zip -d /tmp \
+    && mv /tmp/rclone-${RCLONE_VERSION}-linux-amd64/rclone /usr/bin/ \
+    && rm -rf /tmp/rclone-${RCLONE_VERSION}-linux-amd64 /tmp/rclone.zip
 
 # ======
 # Python
 # ======
 
-RUN pip3 install --no-cache-dir -U pip \
-    && pip3 install --no-cache-dir webdavclient3
+# COPY requirements.txt /tmp/
+# RUN pip install --no-cache-dir -U pip \
+#     && pip install --no-cache-dir -r /tmp/requirements.txt
 
 # =======
 # Cleanup
@@ -77,8 +83,8 @@ ENV GLUU_MAX_RAM_PERCENTAGE=75.0
 LABEL name="Jackrabbit" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
-    version="4.1.1" \
-    release="01" \
+    version="4.2.0" \
+    release="dev" \
     summary="Jackrabbit" \
     description="A fully conforming implementation of the Content Repository for Java Technology API (JCR)"
 
@@ -89,6 +95,10 @@ COPY static/jetty/protectedHandlersConfig.xml ${JETTY_BASE}/jackrabbit/webapps/j
 COPY static/jetty/jackrabbit.xml ${JETTY_BASE}/jackrabbit/webapps/
 COPY scripts /app/scripts
 RUN chmod +x /app/scripts/entrypoint.sh
+# symlink JVM
+RUN mkdir -p /usr/lib/jvm/default-jvm /usr/java/latest \
+    && ln -sf /opt/java/openjdk /usr/lib/jvm/default-jvm/jre \
+    && ln -sf /usr/lib/jvm/default-jvm/jre /usr/java/latest/jre
 
 ENTRYPOINT ["tini", "-e", "143", "-g", "--"]
 CMD ["sh", "/app/scripts/entrypoint.sh"]
