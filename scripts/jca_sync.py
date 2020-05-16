@@ -1,10 +1,9 @@
+import subprocess
+import shlex
 import logging.config
 import os
 import time
-
-from webdav3.client import Client
-from webdav3.exceptions import RemoteResourceNotFound
-from webdav3.exceptions import NoConnection
+from typing import Tuple
 
 from settings import LOGGING_CONFIG
 
@@ -15,43 +14,82 @@ logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger("webdav")
 
 
+def exec_cmd(cmd: str) -> Tuple[bytes, bytes, int]:
+    args = shlex.split(cmd)
+    popen = subprocess.Popen(
+        args,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    stdout, stderr = popen.communicate()
+    retcode = popen.returncode
+    return stdout.strip(), stderr.strip(), retcode
+
+
+class RClone(object):
+    def __init__(self, url, username, password):
+        self.url = f"{url}/repository/default"
+        self.username = username
+        self.password = password
+
+    def configure(self):
+        conf_file = os.path.expanduser("~/.config/rclone/rclone.conf")
+        if os.path.isfile(conf_file):
+            return
+
+        cmd = f"rclone config create jackrabbit webdav vendor other pass {self.password} user admin url {self.url}"
+        _, err, code = exec_cmd(cmd)
+
+        if code != 0:
+            errors = [e for e in err.decode().splitlines()]
+            logger.warning(f"Unable to create webdav config; reason={errors}")
+
+    def copy_from(self, remote, local):
+        cmd = f"rclone copy jackrabbit:{remote} {local} --create-empty-src-dirs"
+        _, err, code = exec_cmd(cmd)
+
+        if code != 0:
+            errors = [e for e in err.decode().splitlines()]
+            logger.warning(f"Unable to sync files from remote directories; reason={errors}")
+
+    def copy_to(self, remote, local):
+        cmd = f"rclone copy {local} jackrabbit:{remote} --create-empty-src-dirs"
+        _, err, code = exec_cmd(cmd)
+
+        if code != 0:
+            errors = [e.decode() for e in err.splitlines()]
+            logger.warning(f"Unable to sync files to remote directories; reason={errors}")
+
+    def ready(self, path="/"):
+        cmd = "rclone lsd jackrabbit:/"
+        _, err, code = exec_cmd(cmd)
+
+        if code != 0:
+            errors = [e for e in err.decode().splitlines()]
+            logger.warning(f"Unable to list remote directory {path}; reason={errors}")
+            return False
+        return True
+
+
 def wait_for_jackrabbit(client):
     elapsed_time = 0
     ready = False
 
     while elapsed_time < 300:
-        try:
-            client.list()
-            ready = True
+        ready = client.ready()
+        if ready:
             break
-        except (RemoteResourceNotFound, NoConnection) as exc:
-            logger.warning(f"Unable to connect to remote directory; reason={exc} ... retrying in 10 seconds")
         time.sleep(10)
         elapsed_time += 10
 
     if not ready:
-        logger.warning(f"Remote directory is not ready; exiting process ...")
+        logger.warning(f"Remote directory is not ready after 300 seconds; exiting process ...")
     return ready
 
 
 def sync_to_webdav(client):
-    for subdir, _, files in os.walk(SYNC_DIR):
-        dir_ = subdir.replace(SYNC_DIR, "")
-
-        if not dir_:
-            continue
-
-        # logger.info(f"creating {dir_} directory (if not exist)")
-        client.mkdir(dir_)
-
-        for file_ in files:
-            remote = os.path.join(dir_, file_)
-            local = f"{SYNC_DIR}{remote}"
-            logger.info(f"uploading {remote} file")
-            client.upload(remote, local)
-
-    # except (RemoteResourceNotFound, NoConnection) as exc:
-    #     logger.warning(f"Unable to sync files from remote directory {url}{ROOT_DIR}{SYNC_DIR}; reason={exc}")
+    client.copy_to("/", SYNC_DIR)
 
 
 def main():
@@ -64,13 +102,8 @@ def main():
         with open(password_file) as f:
             password = f.read().strip()
 
-    options = {
-        "webdav_hostname": url,
-        "webdav_login": username,
-        "webdav_password": password,
-        "webdav_root": ROOT_DIR,
-    }
-    client = Client(options)
+    client = RClone(url, username, password)
+    client.configure()
 
     ready = wait_for_jackrabbit(client)
     if not ready:
