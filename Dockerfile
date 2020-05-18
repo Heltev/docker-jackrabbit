@@ -1,5 +1,10 @@
 FROM adoptopenjdk/openjdk11:alpine-jre
 
+# symlink JVM
+RUN mkdir -p /usr/lib/jvm/default-jvm /usr/java/latest \
+    && ln -sf /opt/java/openjdk /usr/lib/jvm/default-jvm/jre \
+    && ln -sf /usr/lib/jvm/default-jvm/jre /usr/java/latest/jre
+
 # ===============
 # Alpine packages
 # ===============
@@ -95,10 +100,6 @@ COPY static/jetty/protectedHandlersConfig.xml ${JETTY_BASE}/jackrabbit/webapps/j
 COPY static/jetty/jackrabbit.xml ${JETTY_BASE}/jackrabbit/webapps/
 COPY scripts /app/scripts
 RUN chmod +x /app/scripts/entrypoint.sh
-# symlink JVM
-RUN mkdir -p /usr/lib/jvm/default-jvm /usr/java/latest \
-    && ln -sf /opt/java/openjdk /usr/lib/jvm/default-jvm/jre \
-    && ln -sf /usr/lib/jvm/default-jvm/jre /usr/java/latest/jre
 
 ENTRYPOINT ["tini", "-e", "143", "-g", "--"]
 CMD ["sh", "/app/scripts/entrypoint.sh"]
