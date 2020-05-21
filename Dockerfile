@@ -11,9 +11,7 @@ RUN mkdir -p /usr/lib/jvm/default-jvm /usr/java/latest \
 
 RUN apk update \
     && apk add --no-cache py3-pip tini \
-    && apk add --no-cache --virtual build-deps wget \
-    && ln -sf /usr/bin/python3 /usr/bin/python \
-    && ln -sf /usr/bin/pip3 /usr/bin/pip
+    && apk add --no-cache --virtual build-deps wget
 
 # =====
 # Jetty
@@ -56,14 +54,6 @@ RUN wget -q https://github.com/rclone/rclone/releases/download/${RCLONE_VERSION}
     && unzip -qq /tmp/rclone.zip -d /tmp \
     && mv /tmp/rclone-${RCLONE_VERSION}-linux-amd64/rclone /usr/bin/ \
     && rm -rf /tmp/rclone-${RCLONE_VERSION}-linux-amd64 /tmp/rclone.zip
-
-# ======
-# Python
-# ======
-
-# COPY requirements.txt /tmp/
-# RUN pip install --no-cache-dir -U pip \
-#     && pip install --no-cache-dir -r /tmp/requirements.txt
 
 # =======
 # Cleanup
