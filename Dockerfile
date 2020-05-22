@@ -42,7 +42,7 @@ ARG JACKRABBIT_VERSION=2.21.1
 RUN wget -q https://downloads.apache.org/jackrabbit/${JACKRABBIT_VERSION}/jackrabbit-webapp-${JACKRABBIT_VERSION}.war -O /tmp/jackrabbit.war \
     && mkdir -p ${JETTY_BASE}/jackrabbit/webapps/jackrabbit \
     && unzip -qq /tmp/jackrabbit.war -d ${JETTY_BASE}/jackrabbit/webapps/jackrabbit \
-    && java -jar ${JETTY_HOME}/start.jar jetty.home=${JETTY_HOME} jetty.base=${JETTY_BASE}/jackrabbit --add-to-start=server,deploy,annotations,resources,http,http-forwarded,threadpool,jsp,websocket \
+    && java -jar ${JETTY_HOME}/start.jar jetty.home=${JETTY_HOME} jetty.base=${JETTY_BASE}/jackrabbit --add-to-start=server,deploy,resources,http,http-forwarded,jsp \
     && rm -f /tmp/jackrabbit.war
 
 # ======
