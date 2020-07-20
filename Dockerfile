@@ -39,7 +39,7 @@ EXPOSE 8080
 ARG JACKRABBIT_VERSION=2.21.2
 
 # Install Jackrabbit
-RUN wget -q https://downloads.apache.org/jackrabbit/${JACKRABBIT_VERSION}/jackrabbit-webapp-${JACKRABBIT_VERSION}.war -O /tmp/jackrabbit.war \
+RUN wget -q https://repo1.maven.org/maven2/org/apache/jackrabbit/jackrabbit-webapp/${JACKRABBIT_VERSION}/jackrabbit-webapp-${JACKRABBIT_VERSION}.war -O /tmp/jackrabbit.war \
     && mkdir -p ${JETTY_BASE}/jackrabbit/webapps/jackrabbit \
     && unzip -qq /tmp/jackrabbit.war -d ${JETTY_BASE}/jackrabbit/webapps/jackrabbit \
     && java -jar ${JETTY_HOME}/start.jar jetty.home=${JETTY_HOME} jetty.base=${JETTY_BASE}/jackrabbit --add-to-start=server,deploy,resources,http,http-forwarded,jsp \
