@@ -36,7 +36,7 @@ EXPOSE 8080
 # Jackrabbit
 # ==========
 
-ARG JACKRABBIT_VERSION=2.21.1
+ARG JACKRABBIT_VERSION=2.21.2
 
 # Install Jackrabbit
 RUN wget -q https://downloads.apache.org/jackrabbit/${JACKRABBIT_VERSION}/jackrabbit-webapp-${JACKRABBIT_VERSION}.war -O /tmp/jackrabbit.war \
