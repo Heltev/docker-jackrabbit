@@ -82,7 +82,8 @@ COPY LICENSE /licenses/
 # misc
 # ====
 
-ENV GLUU_MAX_RAM_PERCENTAGE=75.0
+ENV GLUU_MAX_RAM_PERCENTAGE=75.0 \
+    GLUU_JAVA_OPTIONS=""
 
 LABEL name="Jackrabbit" \
     maintainer="Gluu Inc. <support@gluu.org>" \

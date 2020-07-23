@@ -20,4 +20,5 @@ exec java \
     -Dserver.base=/opt/gluu/jetty/jackrabbit \
     -Dlog.base=/opt/gluu/jetty/jackrabbit \
     -Djava.io.tmpdir=/tmp \
+    ${GLUU_JAVA_OPTIONS} \
     -jar /opt/jetty/start.jar
