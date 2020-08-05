@@ -54,7 +54,7 @@ def modify_webdefault_xml():
 def render_repository_xml():
     is_cluster = as_boolean(os.environ.get("GLUU_JACKRABBIT_CLUSTER", False))
     pg_user = os.environ.get("GLUU_POSTGRES_USER", "postgres")
-    pg_password_file = os.environ.get("GLUU_POSTGRES_PASSWORD_FILE", "")
+    pg_password_file = os.environ.get("GLUU_POSTGRES_PASSWORD_FILE", "/etc/gluu/conf/postgres_password")
 
     pg_password = ""
     with contextlib.suppress(FileNotFoundError):

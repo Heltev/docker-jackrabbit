@@ -97,7 +97,7 @@ LABEL name="Jackrabbit" \
     summary="Jackrabbit" \
     description="A fully conforming implementation of the Content Repository for Java Technology API (JCR)"
 
-RUN mkdir -p /deploy /opt/webdav
+RUN mkdir -p /deploy /opt/webdav /etc/gluu/conf
 COPY static/jackrabbit /opt/jackrabbit/
 COPY static/jetty/web.xml ${JETTY_BASE}/jackrabbit/webapps/jackrabbit/WEB-INF/
 COPY static/jetty/protectedHandlersConfig.xml ${JETTY_BASE}/jackrabbit/webapps/jackrabbit/WEB-INF/
