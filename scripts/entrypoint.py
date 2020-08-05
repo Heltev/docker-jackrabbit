@@ -1,20 +1,10 @@
 # import base64
+import contextlib
+import os
+import socket
 
-# from pygluu.containerlib import get_manager
-# from pygluu.containerlib.utils import safe_render
-
-
-# def render_repository_xml(manager):
-#     jca_pw = manager.secret.get("jca_pw") or "admin"
-#     ctx = {
-#         "b64_password": base64.b64encode(jca_pw),
-#     }
-
-#     with open("/opt/jackrabbit/repository.xml") as f:
-#         txt = f.read()
-
-#     with open("/opt/jackrabbit/repository.xml", "w") as f:
-#         f.write(safe_render(txt, ctx))
+from pygluu.containerlib.utils import as_boolean
+from pygluu.containerlib.utils import safe_render
 
 import re
 
@@ -61,10 +51,44 @@ def modify_webdefault_xml():
         f.write(updates)
 
 
-def main():
-    # manager = get_manager()
-    # render_repository_xml(manager)
+def render_repository_xml():
+    is_cluster = as_boolean(os.environ.get("GLUU_JACKRABBIT_CLUSTER", False))
+    pg_user = os.environ.get("GLUU_POSTGRES_USER", "postgres")
+    pg_password_file = os.environ.get("GLUU_POSTGRES_PASSWORD_FILE", "")
 
+    pg_password = ""
+    with contextlib.suppress(FileNotFoundError):
+        with open(pg_password_file) as f:
+            pg_password = f.read().strip()
+
+    pg_host = os.environ.get("GLUU_POSTGRES_HOST", "localhost")
+    pg_port = os.environ.get("GLUU_POSTGRES_PORT", "5432")
+    pg_database = os.environ.get("GLUU_POSTGRES_DATABASE", "jackrabbit")
+
+    ctx = {
+        "node_name": socket.getfqdn(),
+        "pg_host": pg_host,
+        "pg_port": pg_port,
+        "pg_database": pg_database,
+        "pg_password": pg_password,
+        "pg_user": pg_user,
+    }
+
+    if is_cluster:
+        src = "/app/templates/repository.cluster.xml.tmpl"
+    else:
+        src = "/app/templates/repository.standalone.xml.tmpl"
+    dest = "/opt/jackrabbit/repository.xml"
+
+    with open(src) as f:
+        txt = f.read()
+
+    with open(dest, "w") as f:
+        f.write(safe_render(txt, ctx))
+
+
+def main():
+    render_repository_xml()
     modify_jetty_xml()
     modify_webdefault_xml()
 

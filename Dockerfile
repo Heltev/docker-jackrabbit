@@ -36,14 +36,17 @@ EXPOSE 8080
 # Jackrabbit
 # ==========
 
-ARG JACKRABBIT_VERSION=2.21.2
-
 # Install Jackrabbit
+ARG JACKRABBIT_VERSION=2.21.2
 RUN wget -q https://repo1.maven.org/maven2/org/apache/jackrabbit/jackrabbit-webapp/${JACKRABBIT_VERSION}/jackrabbit-webapp-${JACKRABBIT_VERSION}.war -O /tmp/jackrabbit.war \
     && mkdir -p ${JETTY_BASE}/jackrabbit/webapps/jackrabbit \
     && unzip -qq /tmp/jackrabbit.war -d ${JETTY_BASE}/jackrabbit/webapps/jackrabbit \
     && java -jar ${JETTY_HOME}/start.jar jetty.home=${JETTY_HOME} jetty.base=${JETTY_BASE}/jackrabbit --add-to-start=server,deploy,resources,http,http-forwarded,jsp \
     && rm -f /tmp/jackrabbit.war
+
+# Postgres binding
+ARG POSTGRES_VERSION=42.2.14
+RUN wget -q https://repo1.maven.org/maven2/org/postgresql/postgresql/${POSTGRES_VERSION}/postgresql-${POSTGRES_VERSION}.jar -O ${JETTY_BASE}/jackrabbit/webapps/jackrabbit/WEB-INF/lib/postgresql-${POSTGRES_VERSION}.jar
 
 # ======
 # rclone
@@ -99,6 +102,7 @@ COPY static/jackrabbit /opt/jackrabbit/
 COPY static/jetty/web.xml ${JETTY_BASE}/jackrabbit/webapps/jackrabbit/WEB-INF/
 COPY static/jetty/protectedHandlersConfig.xml ${JETTY_BASE}/jackrabbit/webapps/jackrabbit/WEB-INF/
 COPY static/jetty/jackrabbit.xml ${JETTY_BASE}/jackrabbit/webapps/
+COPY templates /app/templates
 COPY scripts /app/scripts
 RUN chmod +x /app/scripts/entrypoint.sh
 
