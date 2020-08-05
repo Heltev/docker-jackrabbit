@@ -87,7 +87,15 @@ COPY LICENSE /licenses/
 # ====
 
 ENV GLUU_MAX_RAM_PERCENTAGE=75.0 \
-    GLUU_JAVA_OPTIONS=""
+    GLUU_JAVA_OPTIONS="" \
+    GLUU_WAIT_MAX_TIME=300 \
+    GLUU_WAIT_SLEEP_DURATION=10 \
+    GLUU_JACKRABBIT_CLUSTER=false \
+    GLUU_POSTGRES_USER=postgres \
+    GLUU_POSTGRES_PASSWORD_FILE=/etc/gluu/conf/postgres_password \
+    GLUU_POSTGRES_HOST=localhost \
+    GLUU_POSTGRES_PORT=5432 \
+    GLUU_POSTGRES_DATABASE=jackrabbit
 
 LABEL name="Jackrabbit" \
     maintainer="Gluu Inc. <support@gluu.org>" \
