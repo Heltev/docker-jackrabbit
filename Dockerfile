@@ -91,11 +91,11 @@ ENV GLUU_MAX_RAM_PERCENTAGE=75.0 \
     GLUU_WAIT_MAX_TIME=300 \
     GLUU_WAIT_SLEEP_DURATION=10 \
     GLUU_JACKRABBIT_CLUSTER=false \
-    GLUU_POSTGRES_USER=postgres \
-    GLUU_POSTGRES_PASSWORD_FILE=/etc/gluu/conf/postgres_password \
-    GLUU_POSTGRES_HOST=localhost \
-    GLUU_POSTGRES_PORT=5432 \
-    GLUU_POSTGRES_DATABASE=jackrabbit
+    GLUU_JACKRABBIT_POSTGRES_USER=postgres \
+    GLUU_JACKRABBIT_POSTGRES_PASSWORD_FILE=/etc/gluu/conf/postgres_password \
+    GLUU_JACKRABBIT_POSTGRES_HOST=localhost \
+    GLUU_JACKRABBIT_POSTGRES_PORT=5432 \
+    GLUU_JACKRABBIT_POSTGRES_DATABASE=jackrabbit
 
 LABEL name="Jackrabbit" \
     maintainer="Gluu Inc. <support@gluu.org>" \

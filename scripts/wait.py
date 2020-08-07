@@ -16,17 +16,17 @@ logger = logging.getLogger("wait")
 
 @retry_on_exception
 def wait_for_postgres(manager, **kwargs):
-    pg_user = os.environ.get("GLUU_POSTGRES_USER", "postgres")
-    pg_password_file = os.environ.get("GLUU_POSTGRES_PASSWORD_FILE", "/etc/gluu/conf/postgres_password")
+    pg_user = os.environ.get("GLUU_JACKRABBIT_POSTGRES_USER", "postgres")
+    pg_password_file = os.environ.get("GLUU_JACKRABBIT_POSTGRES_PASSWORD_FILE", "/etc/gluu/conf/postgres_password")
 
     pg_password = ""
     with contextlib.suppress(FileNotFoundError):
         with open(pg_password_file) as f:
             pg_password = f.read().strip()
 
-    pg_host = os.environ.get("GLUU_POSTGRES_HOST", "localhost")
-    pg_port = os.environ.get("GLUU_POSTGRES_PORT", "5432")
-    pg_database = os.environ.get("GLUU_POSTGRES_DATABASE", "jackrabbit")
+    pg_host = os.environ.get("GLUU_JACKRABBIT_POSTGRES_HOST", "localhost")
+    pg_port = os.environ.get("GLUU_JACKRABBIT_POSTGRES_PORT", "5432")
+    pg_database = os.environ.get("GLUU_JACKRABBIT_POSTGRES_DATABASE", "jackrabbit")
 
     conn = psycopg2.connect(
         user=pg_user,
