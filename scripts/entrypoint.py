@@ -1,4 +1,4 @@
-# import base64
+import base64
 import contextlib
 import os
 import socket
@@ -70,7 +70,7 @@ def render_repository_xml():
         "pg_host": pg_host,
         "pg_port": pg_port,
         "pg_database": pg_database,
-        "pg_password": pg_password,
+        "pg_password": base64.b64encode(pg_password.encode()).decode(),
         "pg_user": pg_user,
     }
 
