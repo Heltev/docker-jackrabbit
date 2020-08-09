@@ -1,12 +1,13 @@
 #!/bin/sh
 set -e
 
+python3 /app/scripts/wait.py
+
 if [ ! -f /deploy/touched ]; then
     python3 /app/scripts/entrypoint.py
     touch /deploy/touched
 fi
 
-python3 /app/scripts/wait.py
 python3 /app/scripts/jca_sync.py &
 
 cd /opt/gluu/jetty/jackrabbit
