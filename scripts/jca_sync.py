@@ -1,3 +1,4 @@
+import contextlib
 import logging.config
 import os
 import time
@@ -35,13 +36,15 @@ def sync_to_webdav(client):
 
 def main():
     url = "http://localhost:8080"
-    username = os.environ.get("GLUU_JCA_USERNAME", "admin")
-    password = "admin"
 
-    password_file = os.environ.get("GLUU_JCA_PASSWORD_FILE", "/etc/gluu/conf/jca_password")
-    if os.path.isfile(password_file):
-        with open(password_file) as f:
-            password = f.read().strip()
+    admin_id = "admin"
+    admin_id_file = os.environ.get("GLUU_JACKRABBIT_ADMIN_ID_FILE", "/etc/gluu/conf/jackrabbit_admin_id")
+    with contextlib.suppress(FileNotFoundError):
+        with open(admin_id_file) as f:
+            admin_id = f.read().strip()
+
+    username = admin_id
+    password = admin_id
 
     client = RClone(url, username, password)
     client.configure()

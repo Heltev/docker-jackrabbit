@@ -65,6 +65,18 @@ def render_repository_xml():
     pg_port = os.environ.get("GLUU_JACKRABBIT_POSTGRES_PORT", "5432")
     pg_database = os.environ.get("GLUU_JACKRABBIT_POSTGRES_DATABASE", "jackrabbit")
 
+    anon_id = "anonymous"
+    anon_id_file = os.environ.get("GLUU_JACKRABBIT_ANONYMOUS_ID_FILE", "/etc/gluu/conf/jackrabbit_anonymous_id")
+    with contextlib.suppress(FileNotFoundError):
+        with open(anon_id_file) as f:
+            anon_id = f.read().strip()
+
+    admin_id = "admin"
+    admin_id_file = os.environ.get("GLUU_JACKRABBIT_ADMIN_ID_FILE", "/etc/gluu/conf/jackrabbit_admin_id")
+    with contextlib.suppress(FileNotFoundError):
+        with open(admin_id_file) as f:
+            admin_id = f.read().strip()
+
     ctx = {
         "node_name": socket.getfqdn(),
         "pg_host": pg_host,
@@ -72,6 +84,8 @@ def render_repository_xml():
         "pg_database": pg_database,
         "pg_password": base64.b64encode(pg_password.encode()).decode(),
         "pg_user": pg_user,
+        "jackrabbit_anonymous_id": anon_id,
+        "jackrabbit_admin_id": admin_id,
     }
 
     if is_cluster:

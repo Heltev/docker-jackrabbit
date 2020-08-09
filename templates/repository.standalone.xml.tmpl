@@ -68,11 +68,11 @@
            <!--
               anonymous user name ('anonymous' is the default value)
             -->
-           <!-- <param name="anonymousId" value="anonymous"/> -->
+           <param name="anonymousId" value="%(jackrabbit_anonymous_id)s"/>
            <!--
               administrator user id (default value if param is missing is 'admin')
             -->
-           <param name="adminId" value="admin"/>
+           <param name="adminId" value="%(jackrabbit_admin_id)s"/>
         </LoginModule>
     </Security>
 

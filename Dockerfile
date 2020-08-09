@@ -95,7 +95,9 @@ ENV GLUU_MAX_RAM_PERCENTAGE=75.0 \
     GLUU_JACKRABBIT_POSTGRES_PASSWORD_FILE=/etc/gluu/conf/postgres_password \
     GLUU_JACKRABBIT_POSTGRES_HOST=localhost \
     GLUU_JACKRABBIT_POSTGRES_PORT=5432 \
-    GLUU_JACKRABBIT_POSTGRES_DATABASE=jackrabbit
+    GLUU_JACKRABBIT_POSTGRES_DATABASE=jackrabbit \
+    GLUU_JACKRABBIT_ANONYMOUS_ID_FILE=/etc/gluu/conf/jackrabbit_anonymous_id \
+    GLUU_JACKRABBIT_ADMIN_ID_FILE=/etc/gluu/conf/jackrabbit_admin_id
 
 LABEL name="Jackrabbit" \
     maintainer="Gluu Inc. <support@gluu.org>" \
