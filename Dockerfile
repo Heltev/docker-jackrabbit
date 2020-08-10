@@ -1,4 +1,5 @@
-FROM adoptopenjdk/openjdk11:jre-11.0.8_10-alpine
+# FROM adoptopenjdk/openjdk11:jre-11.0.8_10-alpine
+FROM adoptopenjdk/openjdk11:jdk-11.0.8_10-alpine
 
 # symlink JVM
 RUN mkdir -p /usr/lib/jvm/default-jvm /usr/java/latest \
@@ -96,8 +97,8 @@ ENV GLUU_MAX_RAM_PERCENTAGE=75.0 \
     GLUU_JACKRABBIT_POSTGRES_HOST=localhost \
     GLUU_JACKRABBIT_POSTGRES_PORT=5432 \
     GLUU_JACKRABBIT_POSTGRES_DATABASE=jackrabbit \
-    GLUU_JACKRABBIT_ANONYMOUS_ID_FILE=/etc/gluu/conf/jackrabbit_anonymous_id \
-    GLUU_JACKRABBIT_ADMIN_ID_FILE=/etc/gluu/conf/jackrabbit_admin_id
+    GLUU_JACKRABBIT_ADMIN_ID=admin \
+    GLUU_JACKRABBIT_ADMIN_PASSWORD_FILE=/etc/gluu/conf/jackrabbit_admin_password
 
 LABEL name="Jackrabbit" \
     maintainer="Gluu Inc. <support@gluu.org>" \

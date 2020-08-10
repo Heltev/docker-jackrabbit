@@ -37,14 +37,17 @@ def sync_to_webdav(client):
 def main():
     url = "http://localhost:8080"
 
-    admin_id = "admin"
-    admin_id_file = os.environ.get("GLUU_JACKRABBIT_ADMIN_ID_FILE", "/etc/gluu/conf/jackrabbit_admin_id")
-    with contextlib.suppress(FileNotFoundError):
-        with open(admin_id_file) as f:
-            admin_id = f.read().strip()
+    username = os.environ.get("GLUU_JACKRABBIT_ADMIN_ID", "admin")
+    password = ""
 
-    username = admin_id
-    password = admin_id
+    password_file = os.environ.get(
+        "GLUU_JACKRABBIT_ADMIN_PASSWORD_FILE",
+        "/etc/gluu/conf/jackrabbit_admin_password",
+    )
+    with contextlib.suppress(FileNotFoundError):
+        with open(password_file) as f:
+            password = f.read().strip()
+    password = password or username
 
     client = RClone(url, username, password)
     client.configure()

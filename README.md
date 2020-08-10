@@ -23,5 +23,5 @@ The following environment variables are supported by the container:
 - `GLUU_JACKRABBIT_POSTGRES_HOST`: Host or IP address of Postgres server (default to `localhost`).
 - `GLUU_JACKRABBIT_POSTGRES_PORT`: Port of Postgres server (default to `5432`).
 - `GLUU_JACKRABBIT_POSTGRES_DATABASE`: Postgres database being used for clustering (default to `jackrabbit`).
-- `GLUU_JACKRABBIT_ANONYMOUS_ID_FILE`: Absolute path to file contains ID for anonymous user (default to `/etc/gluu/conf/jackrabbit_anonymous_id`).
-- `GLUU_JACKRABBIT_ADMIN_ID_FILE`: Absolute path to file contains ID for admin user (default to `/etc/gluu/conf/jackrabbit_admin_id`).
+- `GLUU_JACKRABBIT_ADMIN_ID`: Admin username (default to `admin`).
+- `GLUU_JACKRABBIT_ADMIN_PASSWORD_FILE`: Absolute path to file contains password for admin user (default to `/etc/gluu/conf/jackrabbit_admin_password`).
