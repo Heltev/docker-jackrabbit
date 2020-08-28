@@ -4,10 +4,8 @@ Docker image packaging for Jackrabbit.
 
 ## Versions
 
-- Stable: `gluufederation/jackrabbit:4.2.0_01`
-- Unstable: `gluufederation/jackrabbit:4.2.1_dev`
-
-Refer to [Changelog](./CHANGES.md) for details on new features, bug fixes, or older releases.
+See [Releases](https://github.com/GluuFederation/docker-jackrabbit/releases) for stable versions.
+For bleeding-edge/unstable version, use `gluufederation/jackrabbit:4.2.1_dev`.
 
 ## Environment Variables
 
