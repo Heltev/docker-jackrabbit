@@ -34,6 +34,10 @@ public class Main {
 
         try {
             password = readFile(passwordFile, StandardCharsets.US_ASCII);
+            if (password.trim().isEmpty()) {
+                // fallback to Jackrabbit adminID where password equals uid
+                password = username;
+            }
         } catch (IOException exc) {
             // fallback to Jackrabbit adminID where password equals uid
             password = username;
