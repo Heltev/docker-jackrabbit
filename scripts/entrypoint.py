@@ -1,22 +1,21 @@
-# import base64
+import base64
+import contextlib
+import os
+import socket
 
-# from pygluu.containerlib import get_manager
-# from pygluu.containerlib.utils import safe_render
+import logging.config
 
+from pygluu.containerlib.utils import as_boolean
+from pygluu.containerlib.utils import safe_render
+from pygluu.containerlib.utils import get_random_chars
+from pygluu.containerlib.utils import exec_cmd
 
-# def render_repository_xml(manager):
-#     jca_pw = manager.secret.get("jca_pw") or "admin"
-#     ctx = {
-#         "b64_password": base64.b64encode(jca_pw),
-#     }
-
-#     with open("/opt/jackrabbit/repository.xml") as f:
-#         txt = f.read()
-
-#     with open("/opt/jackrabbit/repository.xml", "w") as f:
-#         f.write(safe_render(txt, ctx))
+from settings import LOGGING_CONFIG
 
 import re
+
+logging.config.dictConfig(LOGGING_CONFIG)
+logger = logging.getLogger("entrypoint")
 
 
 def modify_jetty_xml():
@@ -61,10 +60,75 @@ def modify_webdefault_xml():
         f.write(updates)
 
 
-def main():
-    # manager = get_manager()
-    # render_repository_xml(manager)
+def render_repository_xml():
+    is_cluster = as_boolean(os.environ.get("GLUU_JACKRABBIT_CLUSTER", False))
+    pg_user = os.environ.get("GLUU_JACKRABBIT_POSTGRES_USER", "postgres")
+    pg_password_file = os.environ.get("GLUU_JACKRABBIT_POSTGRES_PASSWORD_FILE", "/etc/gluu/conf/postgres_password")
 
+    pg_password = ""
+    with contextlib.suppress(FileNotFoundError):
+        with open(pg_password_file) as f:
+            pg_password = f.read().strip()
+
+    pg_host = os.environ.get("GLUU_JACKRABBIT_POSTGRES_HOST", "localhost")
+    pg_port = os.environ.get("GLUU_JACKRABBIT_POSTGRES_PORT", "5432")
+    pg_database = os.environ.get("GLUU_JACKRABBIT_POSTGRES_DATABASE", "jackrabbit")
+
+    # anon_id = "anonymous"
+    # anon_id_file = os.environ.get("GLUU_JACKRABBIT_ANONYMOUS_ID_FILE", "/etc/gluu/conf/jackrabbit_anonymous_id")
+    # with contextlib.suppress(FileNotFoundError):
+    #     with open(anon_id_file) as f:
+    #         anon_id = f.read().strip()
+
+    # admin_id = "admin"
+    # admin_id_file = os.environ.get("GLUU_JACKRABBIT_ADMIN_ID_FILE", "/etc/gluu/conf/jackrabbit_admin_id")
+    # with contextlib.suppress(FileNotFoundError):
+    #     with open(admin_id_file) as f:
+    #         admin_id = f.read().strip()
+    admin_id = os.environ.get("GLUU_JACKRABBIT_ADMIN_ID", "admin")
+
+    ctx = {
+        "node_name": socket.getfqdn(),
+        "pg_host": pg_host,
+        "pg_port": pg_port,
+        "pg_database": pg_database,
+        "pg_password": base64.b64encode(pg_password.encode()).decode(),
+        "pg_user": pg_user,
+        # "jackrabbit_anonymous_id": anon_id,
+        "jackrabbit_anonymous_id": get_random_chars(),
+        "jackrabbit_admin_id": admin_id,
+    }
+
+    if is_cluster:
+        src = "/app/templates/repository.cluster.xml.tmpl"
+    else:
+        src = "/app/templates/repository.standalone.xml.tmpl"
+    dest = "/opt/jackrabbit/repository.xml"
+
+    with open(src) as f:
+        txt = f.read()
+
+    with open(dest, "w") as f:
+        f.write(safe_render(txt, ctx))
+
+
+def modify_admin_password():
+    logger.info("Modifying credentials for webdav access.")
+    cmd = (
+        "java -cp .:/opt/gluu/jetty/jackrabbit/webapps/jackrabbit/WEB-INF/lib/* "
+        "/app/scripts/Main.java"
+    )
+    out, err, code = exec_cmd(cmd)
+    if code != 0:
+        err = err or out
+        logger.warn(f"Unable to modify credentials; reason={err}")
+    else:
+        logger.info("Credentials for webdav access has been modified.")
+
+
+def main():
+    render_repository_xml()
+    modify_admin_password()
     modify_jetty_xml()
     modify_webdefault_xml()
 
