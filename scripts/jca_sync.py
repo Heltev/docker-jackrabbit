@@ -3,7 +3,8 @@ import logging.config
 import os
 import time
 
-from pygluu.containerlib.document import RClone
+from webdav3.client import Client
+from webdav3.exceptions import NoConnection
 
 from settings import LOGGING_CONFIG
 
@@ -19,19 +20,35 @@ def wait_for_jackrabbit(client):
     ready = False
 
     while elapsed_time < 300:
-        ready = client.ready()
-        if ready:
-            break
+        try:
+            ready = client.info("/")
+            if ready:
+                break
+        except NoConnection:
+            pass
         time.sleep(10)
         elapsed_time += 10
 
     if not ready:
-        logger.warning(f"Remote directory is not ready after 300 seconds; exiting process ...")
+        logger.warning("Remote directory is not ready after 300 seconds; exiting process ...")
     return ready
 
 
 def sync_to_webdav(client):
-    client.copy_to("/", SYNC_DIR)
+    for subdir, _, files in os.walk(SYNC_DIR):
+        dir_ = subdir.replace(SYNC_DIR, "")
+
+        if not dir_:
+            continue
+
+        # logger.info(f"creating {dir_} directory (if not exist)")
+        client.mkdir(dir_)
+
+        for file_ in files:
+            remote = os.path.join(dir_, file_)
+            local = f"{SYNC_DIR}{remote}"
+            logger.info(f"uploading {remote} file")
+            client.upload(remote, local)
 
 
 def main():
@@ -49,8 +66,12 @@ def main():
             password = f.read().strip()
     password = password or username
 
-    client = RClone(url, username, password)
-    client.configure()
+    client = Client({
+        "webdav_hostname": url,
+        "webdav_login": username,
+        "webdav_password": password,
+        "webdav_root": ROOT_DIR,
+    })
 
     ready = wait_for_jackrabbit(client)
     if not ready:
