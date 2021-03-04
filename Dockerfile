@@ -88,8 +88,8 @@ ENV GLUU_MAX_RAM_PERCENTAGE=75.0 \
 LABEL name="Jackrabbit" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
-    version="4.2.3" \
-    release="01" \
+    version="4.3.0" \
+    release="dev" \
     summary="Jackrabbit" \
     description="A fully conforming implementation of the Content Repository for Java Technology API (JCR)"
 
