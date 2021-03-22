@@ -34,7 +34,7 @@ EXPOSE 8080
 # ==========
 
 # Install Jackrabbit
-ARG JACKRABBIT_VERSION=2.21.4
+ARG JACKRABBIT_VERSION=2.20.2
 RUN wget -q https://repo1.maven.org/maven2/org/apache/jackrabbit/jackrabbit-webapp/${JACKRABBIT_VERSION}/jackrabbit-webapp-${JACKRABBIT_VERSION}.war -O /tmp/jackrabbit.war \
     && mkdir -p ${JETTY_BASE}/jackrabbit/webapps/jackrabbit \
     && unzip -qq /tmp/jackrabbit.war -d ${JETTY_BASE}/jackrabbit/webapps/jackrabbit \
