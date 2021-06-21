@@ -5,6 +5,7 @@ import socket
 
 import logging.config
 
+from pygluu.containerlib import get_manager
 from pygluu.containerlib.utils import as_boolean
 from pygluu.containerlib.utils import safe_render
 from pygluu.containerlib.utils import get_random_chars
@@ -112,23 +113,38 @@ def render_repository_xml():
         f.write(safe_render(txt, ctx))
 
 
+JACKRABBIT_LIB_DIR = "/opt/gluu/jetty/jackrabbit/webapps/jackrabbit/WEB-INF/lib"
+
+
 def modify_admin_password():
     logger.info("Modifying credentials for webdav access.")
-    cmd = (
-        "java -cp .:/opt/gluu/jetty/jackrabbit/webapps/jackrabbit/WEB-INF/lib/* "
-        "/app/scripts/Main.java"
-    )
+
+    cmd = f"java -cp .:{JACKRABBIT_LIB_DIR}/* /app/scripts/Main.java"
     out, err, code = exec_cmd(cmd)
     if code != 0:
         err = err or out
-        logger.warn(f"Unable to modify credentials; reason={err}")
-    else:
-        logger.info("Credentials for webdav access has been modified.")
+        raise RuntimeError(f"Unable to modify credentials; reason={err.decode()}")
+
+    logger.info("Credentials for webdav access has been modified.")
+    return True
 
 
 def main():
+    # get last known password for jackrabbit user
+    manager = get_manager()
+    jcr_last_pw_file = "/etc/gluu/conf/.jackrabbit_admin_password.last"
+
+    try:
+        manager.secret.to_file("jcr_last_pw", jcr_last_pw_file)
+    except TypeError:
+        pass
+
     render_repository_xml()
-    modify_admin_password()
+
+    if modify_admin_password() and os.path.isfile(jcr_last_pw_file):
+        manager.secret.from_file("jcr_last_pw", jcr_last_pw_file)
+        os.unlink(jcr_last_pw_file)
+
     modify_jetty_xml()
     modify_webdefault_xml()
 
