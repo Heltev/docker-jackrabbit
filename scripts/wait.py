@@ -5,8 +5,11 @@ import os
 import time
 
 import psycopg2
+
+from pygluu.containerlib import get_manager
 from pygluu.containerlib.utils import as_boolean
 from pygluu.containerlib.wait import retry_on_exception
+from pygluu.containerlib.wait import wait_for
 
 from settings import LOGGING_CONFIG
 
@@ -42,11 +45,11 @@ def wait_for_postgres(manager, **kwargs):
 
 
 def main():
-    is_cluster = as_boolean(os.environ.get("GLUU_JACKRABBIT_CLUSTER", False))
-    if not is_cluster:
-        return
+    manager = get_manager()
+    wait_for(manager, deps=["config_conn", "secret_conn"])
 
-    wait_for_postgres(None, **{"label": "Postgres"})
+    if as_boolean(os.environ.get("GLUU_JACKRABBIT_CLUSTER", False)):
+        wait_for_postgres(None, **{"label": "Postgres"})
 
 
 if __name__ == "__main__":
