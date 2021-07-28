@@ -89,7 +89,7 @@ LABEL name="Jackrabbit" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
     version="4.2.3" \
-    release="03" \
+    release="04" \
     summary="Jackrabbit" \
     description="A fully conforming implementation of the Content Repository for Java Technology API (JCR)"
 
